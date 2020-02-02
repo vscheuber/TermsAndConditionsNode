@@ -29,9 +29,14 @@ Because T&Cs are a personal matter, you should properly authenticate the user in
 - Canceled: The user decided to cancel out of the process.
 
 A sample tree could look like this:
+
 ![ScreenShot of a sample tree](./example_tree.png)
 
 Note: The user is first properly authenticated using username and password or registered (with email verification, which is not visible in the screenshot), only then does she reach the T&Cs node.
+
+A sample dialog you can expect your users to see when they haven't accepted the active T&Cs:
+
+<img src="./example_dialog.png" width="500">ScreenShot of the T&C dialog</img>
 
 ## Settings
 Setting | Description
@@ -42,15 +47,14 @@ IDM User Password | Enter the password of the IDM account.
 
 ## Building Authentication Nodes
 The code in this repository has binary dependencies that live in the ForgeRock maven repository. Maven can be configured to authenticate to this repository by following the following [ForgeRock Knowledge Base Article](https://backstage.forgerock.com/knowledge/kb/article/a74096897).
-
-
-![ScreenShot of the T&C dialog](./example_dialog.png | width=500)
-
         
+
+
 The code described herein is provided on an "as is" basis, without warranty of any kind, to the fullest extent permitted by law. ForgeRock does not warrant or guarantee the individual success developers may have in implementing the sample code on their development platforms or in production configurations.
 
 ForgeRock does not warrant, guarantee or make any representations regarding the use, results of use, accuracy, timeliness or completeness of any data or information relating to the sample code. ForgeRock disclaims all warranties, expressed or implied, and in particular, disclaims all warranties of merchantability, and warranties related to the code, or any service or software related thereto.
 
 ForgeRock shall not be liable for any direct, indirect or consequential damages or costs of any type arising out of any action taken by you or others related to the sample code.
 
+<img src="image" width="40%"></img>
 [forgerock_platform]: https://www.forgerock.com/platform/
