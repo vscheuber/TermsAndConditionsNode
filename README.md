@@ -24,25 +24,21 @@ Download a release build fom the *release* tab or clone this repository to build
 
 ## Usage
 Because T&Cs are a personal matter, you should properly authenticate the user in your tree **before** you use this node. Technically, the only thing the node requires besides correct settings (see below) is the *username* shared state variable set (for example by using the Username Collector Node). The node has three exits:
-- Continue
-  The user had previously accepted the currently active T&Cs or there are no T&Cs or enforcement of T&Cs is disabled in IDM.
-- Accepted
-  The user did accept the currently active T&Cs.
-- Canceled
-  The user decided to cancel out of the process.
+- Continue: The user had previously accepted the currently active T&Cs or there are no T&Cs or enforcement of T&Cs is disabled in IDM.
+- Accepted: The user did accept the currently active T&Cs.
+- Canceled: The user decided to cancel out of the process.
+
 A sample tree could look like this:
 ![ScreenShot of a sample tree](./example_tree.png)
+
 Note: The user is first properly authenticated using username and password or registered (with email verification, which is not visible in the screenshot), only then does she reach the T&Cs node.
 
 ## Settings
-- IDM Base URL
-  Enter the base URL (w/o trailing slash) of the IDM instance you want to use.<br/>\
-  e.g. https://forgerock.mytestrun.com/openidm
-- IDM Privileged User
-  Enter the username of an IDM account privileged to run as another user.<br/>\
-  See chapter <a href="https://backstage.forgerock.com/docs/idm/6.5/integrators-guide/#auth-run-as">20.1.7. Authenticating as a Different User</a> on how to configure IDM for runAs.
-- IDM User Password
-  Enter the password of the IDM account.
+Setting | Description
+------- | -----------
+- IDM Base URL | Enter the base URL (w/o trailing slash) of the IDM instance you want to use, e.g. https://forgerock.mytestrun.com/openidm
+- IDM Privileged User | Enter the username of an IDM account privileged to run as another user. See chapter <a href="https://backstage.forgerock.com/docs/idm/6.5/integrators-guide/#auth-run-as">20.1.7. Authenticating as a Different User</a> on how to configure IDM for runAs.
+- IDM User Password | Enter the password of the IDM account.
 
 ## Building Authentication Nodes
 The code in this repository has binary dependencies that live in the ForgeRock maven repository. Maven can be configured to authenticate to this repository by following the following [ForgeRock Knowledge Base Article](https://backstage.forgerock.com/knowledge/kb/article/a74096897).
