@@ -36,7 +36,7 @@ Note: The user is first properly authenticated using username and password or re
 
 A sample dialog you can expect your users to see when they haven't accepted the active T&Cs:
 
-<img src="./example_dialog.png" width="500">ScreenShot of the T&C dialog</img>
+<img src="./example_dialog.png" alt="ScreenShot of the T&C dialog" width="500"/>
 
 ## Settings
 Setting | Description
