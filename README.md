@@ -36,9 +36,9 @@ Note: The user is first properly authenticated using username and password or re
 ## Settings
 Setting | Description
 ------- | -----------
-- IDM Base URL | Enter the base URL (w/o trailing slash) of the IDM instance you want to use, e.g. https://forgerock.mytestrun.com/openidm
-- IDM Privileged User | Enter the username of an IDM account privileged to run as another user. See chapter <a href="https://backstage.forgerock.com/docs/idm/6.5/integrators-guide/#auth-run-as">20.1.7. Authenticating as a Different User</a> on how to configure IDM for runAs.
-- IDM User Password | Enter the password of the IDM account.
+IDM Base URL | Enter the base URL (w/o trailing slash) of the IDM instance you want to use, e.g. https://forgerock.mytestrun.com/openidm
+IDM Privileged User | Enter the username of an IDM account privileged to run as another user. See chapter <a href="https://backstage.forgerock.com/docs/idm/6.5/integrators-guide/#auth-run-as">20.1.7. Authenticating as a Different User</a> on how to configure IDM for runAs.
+IDM User Password | Enter the password of the IDM account.
 
 ## Building Authentication Nodes
 The code in this repository has binary dependencies that live in the ForgeRock maven repository. Maven can be configured to authenticate to this repository by following the following [ForgeRock Knowledge Base Article](https://backstage.forgerock.com/knowledge/kb/article/a74096897).
