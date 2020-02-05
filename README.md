@@ -49,6 +49,37 @@ IDM User Password | Enter the password of the IDM account.
 The code in this repository has binary dependencies that live in the ForgeRock maven repository. Maven can be configured to authenticate to this repository by following the following [ForgeRock Knowledge Base Article](https://backstage.forgerock.com/knowledge/kb/article/a74096897).
         
 
+## IDM RunAs Configuration
+The following JSON configuration snippet shows what you need to make this node work in your environment. The essential part is the `runAsProperties` object. Add that object under `properties` of your `INTERNAL_USER` block in your `authentication.json` file.
+
+```
+{
+    "name": "INTERNAL_USER",
+    "properties": {
+        "queryId": "credential-internaluser-query",
+        "queryOnResource": "internal/user",
+        "propertyMapping": {
+            "authenticationId": "username",
+            "userCredential": "password",
+            "userRoles": "authzRoles"
+        },
+        "defaultUserRoles": [],
+        "runAsProperties": {
+            "adminRoles": [
+                "internal/role/openidm-admin"
+            ],
+            "disallowedRunAsRoles": [],
+            "queryOnResource": "managed/user",
+            "propertyMapping": {
+                "authenticationId": "username",
+                "userRoles": "authzRoles"
+            }
+        }
+    },
+    "enabled": true
+}
+```
+
 
 The code described herein is provided on an "as is" basis, without warranty of any kind, to the fullest extent permitted by law. ForgeRock does not warrant or guarantee the individual success developers may have in implementing the sample code on their development platforms or in production configurations.
 
