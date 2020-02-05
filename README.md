@@ -13,13 +13,17 @@
  *
  * Copyright 2019 ForgeRock AS.
 -->
-# TermsAndConditionsNode
+# Terms And Conditions Node
 ForgeRock Terms &amp; Conditions Authentication Tree Node
 
 An authentication node for ForgeRock's [Identity Platform][forgerock_platform] 6.5.2 and above. This node integrates ForgeRock Identity Management's (IDM) terms and conditions management and enforcement with ForgeRock Access Management's (AM) intelligent authentication framework. Build registration and authentication trees and include T&C enforcement using settings in IDM.
 
 
 Download a release build fom the *release* tab or clone this repository to build your own release. Copy the .jar file from your download location or the *./target* directory (if you built it yourself) into the *../web-container/webapps/openam/WEB-INF/lib* directory where AM is deployed.  Restart the web container to pick up the new node.  The node will then appear in the authentication trees components palette.
+
+
+## Related Nodes
+- <a href="https://github.com/vscheuber/ProgressiveProfileCompletion">Progressive Profile Completion Node</a>
 
 
 ## Usage
@@ -52,7 +56,7 @@ The code in this repository has binary dependencies that live in the ForgeRock m
 ## IDM RunAs Configuration
 The following JSON configuration snippet shows what you need to make this node work in your environment. The essential part is the `runAsProperties` object. Add that object under `properties` of your `INTERNAL_USER` block in your `authentication.json` file.
 
-```
+```json
 {
     "name": "INTERNAL_USER",
     "properties": {
