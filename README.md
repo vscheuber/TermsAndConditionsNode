@@ -24,6 +24,7 @@ Download a release build fom the *release* tab or clone this repository to build
 
 ## Related Nodes
 - <a href="https://github.com/vscheuber/ProgressiveProfileCompletion">Progressive Profile Completion Node</a>
+- <a href="https://github.com/vscheuber/HTMLMessageNode">HTML Message Node</a>
 
 
 ## Usage
@@ -43,8 +44,8 @@ A sample dialog you can expect your users to see when they haven't accepted the 
 <img src="./example_dialog.png" alt="ScreenShot of the T&C dialog" width="500"/>
 
 ## Settings
-Setting | Description
-------- | -----------
+Setting             | Description
+------------------- | -----------
 IDM Base URL | Enter the base URL (w/o trailing slash) of the IDM instance you want to use, e.g. https://forgerock.mytestrun.com/openidm
 IDM Privileged User | Enter the username of an IDM account privileged to run as another user. See chapter <a href="https://backstage.forgerock.com/docs/idm/6.5/integrators-guide/#auth-run-as">20.1.7. Authenticating as a Different User</a> on how to configure IDM for runAs.
 IDM User Password | Enter the password of the IDM account.

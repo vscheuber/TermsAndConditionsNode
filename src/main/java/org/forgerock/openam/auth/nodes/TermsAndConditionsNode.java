@@ -40,7 +40,6 @@ import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Node;
 import org.forgerock.openam.auth.node.api.NodeProcessException;
 import org.forgerock.openam.auth.node.api.TreeContext;
-import org.forgerock.openam.core.CoreWrapper;
 import org.forgerock.openam.sm.annotations.adapters.Password;
 import org.forgerock.util.i18n.PreferredLocales;
 import org.json.JSONException;
@@ -51,7 +50,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.assistedinject.Assisted;
 import com.sun.identity.authentication.callbacks.ScriptTextOutputCallback;
-import com.sun.identity.shared.debug.Debug;
 import com.sun.identity.sm.RequiredValueValidator;
 
 @Node.Metadata(outcomeProvider = TermsAndConditionsNode.TermsAndConditionsNodeOutcomeProvider.class,
@@ -59,12 +57,8 @@ import com.sun.identity.sm.RequiredValueValidator;
 public class TermsAndConditionsNode implements Node {
 
     private static final String BUNDLE = TermsAndConditionsNode.class.getName().replace(".", "/");
-    private final Logger logger = LoggerFactory.getLogger(TermsAndConditionsNode.class);
-    private final static String DEBUG_FILE = "TermsAndConditionsNode";
-    protected Debug debug = Debug.getInstance(DEBUG_FILE);
-    
+    private final Logger logger = LoggerFactory.getLogger("amAuth");
     private final Config config;
-    private final CoreWrapper coreWrapper;
 
     /**
      * Configuration for the node.
@@ -86,7 +80,7 @@ public class TermsAndConditionsNode implements Node {
 
 
     /*
-     * Constructs a new GetSessionPropertiesNode instance.
+     * Constructs a new TermsAndConditionsNode instance.
      * We can have Assisted:
      * * Config config
      * * UUID nodeId
@@ -95,76 +89,38 @@ public class TermsAndConditionsNode implements Node {
      * CoreWrapper
      */
     @Inject
-    public TermsAndConditionsNode(@Assisted Config config, CoreWrapper coreWrapper) {
+    public TermsAndConditionsNode(@Assisted Config config) {
     	this.config = config;
-        this.coreWrapper = coreWrapper;
     }
 
     @Override
     public Action process(TreeContext context) throws NodeProcessException {
         JsonValue sharedState = context.sharedState;
         JsonValue transientState = context.transientState;
-        
-        // client-side script to change the look and feel of how the terms and conditions are displayed.
-        String script =
-                "var callbackScript = document.createElement(\"script\");\n" +
-                "callbackScript.type = \"text/javascript\";\n" +
-                "callbackScript.text = \"function completed() { document.querySelector(\\\"input[type=submit]\\\").click(); }\";\n" +
-                "document.body.appendChild(callbackScript);\n" +
-                "\n" +
-                "submitted = true;\n" +
-                "\n" +
-                "var decodeHTML = function (html) {\n" + 
-                "	var txt = document.createElement('textarea');\n" + 
-                "	txt.innerHTML = html;\n" + 
-                "	return txt.value;\n" + 
-                "};" +
-                "\n" +
-                "function callback() {\n" +
-                "\n" +
-				"    var title = document.getElementById('callback_1');\n" +
-                "    title.className = \"0 h1\";\n" +
-				"    title.align = \"center\";\n" +
-				"\n" +
-				"    var message = document.getElementById('callback_2');\n" +
-                "    message.className = \"0 h3\";\n" +
-				"    message.align = \"center\";\n" +
-				"\n" +
-                "    var terms = document.getElementById('callback_3');\n" +
-                "    terms.className = \"form-control  pre-scrollable\";\n" +
-                "    terms.style = \"height: 150px;\";\n" +
-                "    terms.innerHTML = decodeHTML(terms.innerHTML);\n" +
-                "}\n" +
-                "\n" +
-                "if (document.readyState !== 'loading') {\n" +
-                "  callback();\n" +
-                "} else {\n" +
-                "  document.addEventListener(\"DOMContentLoaded\", callback);\n" +
-                "}";
 
         if (context.getCallback(ConfirmationCallback.class).isPresent()) {
             ConfirmationCallback confirmationCallback = context.getCallback(ConfirmationCallback.class).get();
             if (confirmationCallback.getSelectedIndex() == 0) {
-            	debug.error("[" + DEBUG_FILE + "]: Accepted.");
+            	logger.debug("Accepted.");
             	
             	acceptRequirements(sharedState.get(USERNAME).asString());
             	
                 return Action.goTo(TermsAndConditionsOutcome.ACCEPTED.name()).replaceSharedState(sharedState).replaceTransientState(transientState).build();
             }
-        	debug.error("[" + DEBUG_FILE + "]: Canceled.");
+            logger.debug("Canceled.");
             return Action.goTo(TermsAndConditionsOutcome.CANCELED.name()).replaceSharedState(sharedState).replaceTransientState(transientState).build();
         }
 
         JSONObject requirements = getRequirements(sharedState.get(USERNAME).asString());
         if (null!=requirements && requirements.has("terms")) {
-        	debug.error("[" + DEBUG_FILE + "]: Need to accept terms:" + requirements);
+        	logger.debug("Need to accept terms:" + requirements);
         	try {
 				String terms = requirements.getString("terms");
 	        	String title = requirements.getJSONObject("uiConfig").getString("displayName");
 	        	String message = requirements.getJSONObject("uiConfig").getString("purpose");
 	        	String confirm = requirements.getJSONObject("uiConfig").getString("buttonText");
 	        	
-	        	String clientSideScriptExecutorFunction = createClientSideScriptExecutorFunction(script, terms, "TermsAndConditions");
+	        	String clientSideScriptExecutorFunction = createClientSideScriptExecutorFunction(getScript(), terms, "TermsAndConditions");
 	            ScriptTextOutputCallback scriptAndSelfSubmitCallback =
 	                    new ScriptTextOutputCallback(clientSideScriptExecutorFunction);
 	        	
@@ -174,15 +130,54 @@ public class TermsAndConditionsNode implements Node {
 	            								 new TextOutputCallback(TextOutputCallback.INFORMATION, terms),
 	                                             new ConfirmationCallback(ConfirmationCallback.INFORMATION, new String[]{confirm, "Cancel"}, 0))).build();
 			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.debug("process: ", e);
 			}
         }
         
-    	debug.error("[" + DEBUG_FILE + "]: Nothing to do.");
+        logger.debug("Nothing to do.");
         return Action.goTo(TermsAndConditionsOutcome.CONTINUE.name()).replaceSharedState(sharedState).replaceTransientState(transientState).build();
 
     }
+
+	private String getScript() {
+		// client-side script to change the look and feel of how the terms and conditions are displayed.
+        StringBuffer script = new StringBuffer();
+        script.append("var callbackScript = document.createElement(\"script\");\n");
+        script.append("callbackScript.type = \"text/javascript\";\n");
+        script.append("callbackScript.text = \"function completed() { document.querySelector(\\\"input[type=submit]\\\").click(); }\";\n");
+        script.append("document.body.appendChild(callbackScript);\n");
+        script.append("\n");
+        script.append("submitted = true;\n");
+        script.append("\n");
+		script.append("var decodeHTML = function (html) {\n");
+		script.append("	var txt = document.createElement('textarea');\n");
+		script.append("	txt.innerHTML = html;\n");
+		script.append("	return txt.value;\n");
+		script.append("};");
+		script.append("\n");
+		script.append("function callback() {\n");
+		script.append("\n");
+		script.append("    var title = document.getElementById('callback_1');\n");
+		script.append("    title.className = \"0 h1\";\n");
+		script.append("    title.align = \"center\";\n");
+		script.append("\n");
+		script.append("    var message = document.getElementById('callback_2');\n");
+		script.append("    message.className = \"0 h3\";\n");
+		script.append("    message.align = \"center\";\n");
+		script.append("\n");
+		script.append("    var terms = document.getElementById('callback_3');\n");
+		script.append("    terms.className = \"form-control  pre-scrollable\";\n");
+		script.append("    terms.style = \"height: 150px;\";\n");
+		script.append("    terms.innerHTML = decodeHTML(terms.innerHTML);\n");
+		script.append("}\n");
+		script.append("\n");
+		script.append("if (document.readyState !== 'loading') {\n");
+		script.append("  callback();\n");
+		script.append("} else {\n");
+		script.append("  document.addEventListener(\"DOMContentLoaded\", callback);\n");
+		script.append("}");
+		return script.toString();
+	}
 
     public static String createClientSideScriptExecutorFunction(String script, String terms, String outputParameterId) {
         return String.format(
@@ -244,7 +239,7 @@ public class TermsAndConditionsNode implements Node {
     	String idmTermsAndConditionsUrl = String.format("%s/selfservice/termsAndConditions?_prettyPrint=true", idmBaseUrl);
         try {
             URL url = new URL(idmTermsAndConditionsUrl);
-            debug.error("[" + DEBUG_FILE + "]: url = " + url);
+            logger.debug("url = " + url);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Accept", "*/*");
@@ -266,27 +261,21 @@ public class TermsAndConditionsNode implements Node {
             
             int responseCode = conn.getResponseCode();
             if ( responseCode == 200 ) {
-                debug.error("[" + DEBUG_FILE + "]: getRequirements: HTTP Success: response 200");
+            	logger.debug("getRequirements: HTTP Success: response code - {}, response: {}", responseCode, response);
                 
                 conn.disconnect();
-                debug.error("[" + DEBUG_FILE + "]: response:" + response);
                 return new JSONObject(response).getJSONObject("requirements");
             }
-            if (conn.getResponseCode() != 200) {
+            else {
             	String responseMessage = conn.getResponseMessage();
-                debug.error("[" + DEBUG_FILE + "]: getRequirements: HTTP failed, response code: " + responseCode + " - " + responseMessage);
+            	logger.debug("getRequirements: HTTP failed, response code: {} - {}, response: {}", responseCode, responseMessage, response);
                 
                 conn.disconnect();
-                debug.error("[" + DEBUG_FILE + "]: response:" + response);
                 return null;
             }
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-			e.printStackTrace();
-		}
+        } catch (Throwable t) {
+        	logger.debug("getRequirements: ", t);
+        }
         return null;
     }
     
@@ -297,7 +286,6 @@ public class TermsAndConditionsNode implements Node {
     	String idmTermsAndConditionsUrl = String.format("%s/selfservice/termsAndConditions?_action=submitRequirements&_prettyPrint=true", idmBaseUrl);
         try {
             URL url = new URL(idmTermsAndConditionsUrl);
-            debug.error("[" + DEBUG_FILE + "]: url = " + url);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Accept", "*/*");
@@ -329,16 +317,14 @@ public class TermsAndConditionsNode implements Node {
             
     		int responseCode = conn.getResponseCode();
             if ( responseCode == 200 ) {
-                debug.error("[" + DEBUG_FILE + "]: acceptRequirements: HTTP Success: response 200");
+            	logger.debug("acceptRequirements: HTTP Success: response code - {}, response: {}", responseCode, response);
                 
                 conn.disconnect();
                 return true;
             }
-            if (conn.getResponseCode() != 200) {
+            else {
             	String responseMessage = conn.getResponseMessage();
-                debug.error("[" + DEBUG_FILE + "]: acceptRequirements: HTTP failed, response code: " + responseCode + " - " + responseMessage);
-
-                debug.error("[" + DEBUG_FILE + "]: acceptRequirements: " + output);
+            	logger.debug("acceptRequirements: HTTP failed, response code: {} - {}, response: {}", responseCode, responseMessage, response);
                 
                 conn.disconnect();
                 return false;
