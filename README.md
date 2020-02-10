@@ -33,6 +33,8 @@ Because T&Cs are a personal matter, you should properly authenticate the user in
 - Accepted: The user did accept the currently active T&Cs.
 - Canceled: The user decided to cancel out of the process.
 
+I found <a href="https://www.termsandcondiitionssample.com">Terms and Conditions Sample</a> a great resource to create personalized sample T&Cs in minutes.
+
 A sample tree could look like this:
 
 ![ScreenShot of a sample tree](./example_tree.png)
